@@ -1,4 +1,4 @@
-**jQuery Plugin for Google Maps, Clustered Markers and Customised Windows.**
+**jQuery Plugin for Google Maps, Clustered Markers and Customised Windows
 * Still very much a work in progress - initiated here for reference only
 * Follow [Mark on Twitter](http://twitter.com/m_smalley) for more updates
 
