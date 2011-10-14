@@ -103,7 +103,6 @@
 				});
 			}else{
 			  // Browser doesn't support Geolocation
-			  console.log('no html5');
 			  handle_no_geolocation(false);
 			}
 		}else{
