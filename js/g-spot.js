@@ -185,21 +185,21 @@
 
 	function map_cluster(map_id){
 		var styles = [[{
-		  url: base_url+'img/shadow_mongo.png',
+		  url: base_url+'img/shadow.png',
 		  height: 62,
 		  width: 62,
 		  opt_anchor: [16, 0],
 		  opt_textColor: '#333333',
 		  opt_textSize: 18
 		}, {
-		  url: base_url+'img/shadow_mongo.png',
+		  url: base_url+'img/shadow.png',
 		  height: 62,
 		  width: 62,
 		  opt_anchor: [16, 0],
 		  opt_textColor: '#333333',
 		  opt_textSize: 18
 		}, {
-		  url: base_url+'img/shadow_mongo.png',
+		  url: base_url+'img/shadow.png',
 		  height: 62,
 		  width: 62,
 		  opt_anchor: [16, 0],
