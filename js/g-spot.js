@@ -241,7 +241,6 @@
 			map_id,
 			{latlng: marker[this_id].getPosition(), map: marker[this_id].map}
 		);
-		map_cluster($(map_container).attr('id'));
 	}
 
 	function add_marker(map_id,lat,lng,title,content,this_id,slug){
@@ -302,9 +301,23 @@
         // e.g., this.element and this.options
 
 		if(this.options.debug===true){
-			console.log(this.element);
-			console.log(this.options);
+			console.log('This Element = ',this.element);
+			console.log('Options = ',this.options);
 		} map_container = this.element;
+
+		adhoc_zoom = parseInt($(map_container).attr('data-zoom'));
+		adhoc_type = $(map_container).attr('data-type');
+		adhoc_lat = parseFloat($(map_container).attr('data-lat'));
+		adhoc_lng = parseFloat($(map_container).attr('data-lng'));
+		adhoc_title = $(map_container).attr('data-title');
+		adhoc_slug = $(map_container).attr('data-slug');
+		adhoc_content = $(map_container).html();
+
+		if((adhoc_zoom!==null)&&(adhoc_zoom!==false)){
+			this.options.zoom = adhoc_zoom;
+		} if((adhoc_type!==null)&&(adhoc_type!==false)){
+			this.options.type = adhoc_type;
+		}
 
 		if((!is_numeric(this.options.lat)) && (this.options.lat!==false)){
 			this.options.lat = default_lat;
@@ -315,11 +328,20 @@
 		var map_type = false;
 		if(this.options.type=='SATELLITE'){
 			map_type = google.maps.MapTypeId.SATELLITE;
+		}else if(this.options.type=='HYBRID'){
+			map_type = google.maps.MapTypeId.HYBRID;
+		}else if(this.options.type=='TERRAIN'){
+			map_type = google.maps.MapTypeId.TERRAIN;
 		}else{
 			map_type = google.maps.MapTypeId.ROADMAP;
 		}
 
 		clustered_markers[$(this.element).attr('id')] = [];
+		
+		if((!is_numeric(this.options.zoom)) && (this.options.zoom!==false)){
+			this.options.zoom = 13;
+		} if(this.options.zoom<1) this.options.zoom = 1;
+		else if (this.options.zoom>16) this.options.zoom = 17;
 
 		var map_options = {
 			zoom: this.options.zoom,
@@ -358,9 +380,36 @@
 			console.log('THIS LNG = ', this.options.lng);
 		}
 
+		adhoc_marker = false;
+		if((adhoc_lat!==null)&&(adhoc_lat!==false)&&(adhoc_lng!==null)&&(adhoc_lng!==false)){
+			if((is_numeric(adhoc_lat)) && (is_numeric(adhoc_lng))){
+				adhoc_marker = new Object();
+				adhoc_marker['this_id'] = $(this.element).attr('id');
+				if((adhoc_lat!==null)&&(adhoc_lat!==false)){
+					adhoc_marker['lat'] = adhoc_lat;
+				} if((adhoc_lng!==null)&&(adhoc_lng!==false)){
+					adhoc_marker['lng'] = adhoc_lng;
+				} if((adhoc_title!==null)&&(adhoc_title!==false)){
+					adhoc_marker['title'] = adhoc_title;
+				} if((adhoc_slug!==null)&&(adhoc_slug!==false)){
+					adhoc_marker['slug'] = adhoc_slug;
+				} if((adhoc_content!==null)&&(adhoc_content!==false)){
+					adhoc_marker['content'] = adhoc_content;
+				} this.options.markers[this.options.markers.length] = adhoc_marker;
+				
+				if(this.options.debug===true){
+					console.log('adhoc_marker = ',adhoc_marker);
+				}
+			}
+		}
+
+		if(this.options.debug===true){
+			console.log('Markers = ',this.options.markers);
+		}
+
 		for(i=0; i< this.options.markers.length; i++) {
 			if(this.options.debug===true){
-				console.log(this.options.markers[i]);
+				console.log('This Marker = ',this.options.markers[i]);
 			} add_marker(
 				$(this.element).attr('id'),
 				this.options.markers[i].lat,
@@ -369,7 +418,7 @@
 				this.options.markers[i].content,
 				this.options.markers[i].this_id,
 				this.options.markers[i].slug
-			)
+			); map_cluster($(map_container).attr('id'));
 		}
 
     };

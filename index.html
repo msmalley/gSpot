@@ -14,29 +14,34 @@
 
 	<script>
 
+		/* THIS IS AN EXAMPLE OF FEEDING MARKERS AS AN ARRAY */
+		markers = [{
+			lat: 3.152864,
+			lng: 101.712624,
+			title: 'My First Marker',
+			content: 'Hello World',
+			this_id: 'id',
+			slug: 'slug'
+		},{
+			lat: 3.2,
+			lng: 101,
+			title: 'My Second Marker',
+			content: 'Hello World',
+			this_id: 'id2',
+			slug: 'slug'
+		}]
+
+		/* THIS EXAMPLE SHOWS ALL AVAILABLE OPTIONS */
 		gspot_options = {
             zoom: 13,
 			type: 'ROADMAP',
 			lat: false,
 			lng: false,
-			debug: true,
-			markers: [{
-				lat: 3.152864,
-				lng: 101.712624,
-				title: 'My First Marker',
-				content: 'Hello World',
-				this_id: 'id',
-				slug: 'slug'
-			},{
-				lat: 3.2,
-				lng: 101,
-				title: 'My Second Marker',
-				content: 'Hello World',
-				this_id: 'id2',
-				slug: 'slug'
-			}]
+			debug: false,
+			markers: markers
         }
 
+		/* CREATING A MAP IS THIS SIMPLE */
 		$(window).load(function(){
 			$('#gspot').gSpot(gspot_options);
 		});
@@ -46,7 +51,11 @@
 </head>
 <body>
 
-	<div id="gspot" class="gspot-map"></div>
+	<!-- THE ONLY REQUIRED ATTRIBUTE IS AN ID -->
+	<!-- HOWEVER - DATA ATTRIBUTES ALLOW YOU TO ADD AN AD-HOC MARKER -->
+	<div id="gspot" class="gspot-map" data-zoom="13" data-type="ROADMAP" data-lat="3" data-lng="100" data-title="AD-HOC Marker" data-slug="http://www.smalley.my">
+		<p>This is the content for ad-hoc markers</p>
+	</div>
 
 </body>
 </html>
