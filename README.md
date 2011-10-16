@@ -11,4 +11,4 @@
 More information available soon!
 
 # See it in Action:
-Live demo available soon!
+Demo at [http://gspot.smalley.my/](http://gspot.smalley.my/)
