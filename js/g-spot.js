@@ -1,3 +1,5 @@
+/* gSpot Version 1.0 - by Mark Smalley - http://www.smalley.my */
+/* Mark Smalley on GitHub - https://github.com/msmalley */
 ;(function ( $, window, document, undefined ) {
 
     var pluginName = 'gSpot',
