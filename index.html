@@ -6,11 +6,15 @@
 
 	<title>gSpot</title>
 
-	<link rel="stylesheet" href="css/styles.css">
 	<script src="http://maps.googleapis.com/maps/api/js?sensor=true"></script>
 	<script src="js/jquery-1.6.4.min.js"></script>
-	<!--<script src="js/clusters.js"></script>-->
+
+	<link rel="stylesheet" href="css/g-spot.css">
 	<script src="js/g-spot.js"></script>
+
+	<!--[if lt IE 9]>
+		<style>.git-ribbon { top: -2em; left: -2em; }</style>
+	<![endif]-->
 
 	<script>
 
@@ -18,32 +22,42 @@
 		markers = [{
 			lat: 3.152864,
 			lng: 101.712624,
-			title: 'My First Marker',
-			content: 'Hello World',
+			title: 'gSpot - Simple Example',
+			content: 'Getting started is as simple as (JS):<br /><code>$(\'#gspot\').gSpot();</code><br />And (HTML):<br /><code>&lt;div id="gspot"&gt&lt/div&gt</code>',
 			this_id: 'id',
-			slug: 'slug'
+			slug: 'https://github.com/msmalley/gSpot',
+			open: true
 		},{
 			lat: 3.2,
 			lng: 101,
-			title: 'My Second Marker',
-			content: 'Hello World',
+			title: 'My Boat',
+			content: '<p>I live on a boat - this is my boat, I hope you like my boat, for my boat is where I live.</p>',
 			this_id: 'id2',
-			slug: 'slug'
-		}]
+			slug: 'https://github.com/msmalley/gSpot'
+		}];
 
 		/* THIS EXAMPLE SHOWS ALL AVAILABLE OPTIONS */
-		gspot_options = {
-			zoom: 5,
+		default_options = {
+            zoom: 5,
 			type: 'ROADMAP',
-			lat: false,
-			lng: false,
+			lat: 3.152864,
+			lng: 101.712624,
 			debug: false,
 			markers: markers
+        }
+
+		/* ALTERNATIVE OPTIONS */
+		basic_options = {
+			zoom: 2,
+			type: 'HYBRID'
 		}
 
 		/* CREATING A MAP IS THIS SIMPLE */
-		$(window).load(function(){
-			$('#gspot').gSpot(gspot_options);
+		$(document).ready(function(){
+			$('#gspot-top-left').gSpot(default_options);
+			$('#gspot-top-right').gSpot(basic_options);
+			$('#gspot-bottom-left').gSpot(basic_options);
+			$('#gspot-bottom-right').gSpot(default_options);
 		});
 
 	</script>
@@ -51,10 +65,36 @@
 </head>
 <body>
 
-	<!-- THE ONLY REQUIRED ATTRIBUTE IS AN ID -->
-	<!-- HOWEVER - DATA ATTRIBUTES ALLOW YOU TO ADD AN AD-HOC MARKER -->
-	<div id="gspot" class="gspot-map" data-zoom="5" data-type="ROADMAP" data-lat="3" data-lng="100" data-title="AD-HOC Marker" data-slug="http://www.smalley.my">
-		<p>This is the content for ad-hoc markers</p>
+	<div class="git-ribbon"><a href="https://github.com/msmalley/gSpot">Fork Me on GitHub</a></div>
+
+	<div id="header">
+		<h1>gSpot - The Google Map jQuery Plugin with Clustering &amp Customized CSS-Based InfoWindows</h1>
+		<span class="social-media-links">
+			<h2>: &nbsp; Geo jQuery Your Guaranteed to Find (easy to use)</h2>
+			<a href="http://twitter.com/m_smalley" class="twitter">Twitter</a>
+			<a href="http://facebook.com/mark.smalley" class="facebook">Facebook</a>
+			<a href="http://www.linkedin.com/profile/view?id=10311122" class="linkedin">Linked-In</a>
+		</span>
+	</div>
+	
+	<div id="map-wrapper">
+
+		<!-- THE ONLY REQUIRED ATTRIBUTE IS AN ID -->
+		<div id="gspot-top-left"></div>
+
+		<!-- HOWEVER - DATA ATTRIBUTES ALLOW YOU TO ADD AN AD-HOC MARKER -->
+		<div id="gspot-top-right" data-lat="3" data-lng="100" data-title="AD-HOC Marker" data-slug="http://www.smalley.my" data-open="true">
+			This is the content for an ad-hoc marker.<br /><code>&lt;div id="gspot-top-right" data-lat="3" data-lng="100" data-title="AD-HOC Marker" data-slug="http://www.smalley.my"&gt&lt/div&gt</code>
+		</div>
+
+		<!-- WITH DATA ATTRIBUTES, YOU CAN ALSO OVER-RIDE DEFAULT OPTIONS IF SPECIFIED -->
+		<div id="gspot-bottom-left" data-zoom="2" data-type="SATELLITE" data-override="true" data-lat="3" data-lng="100" data-title="AD-HOC Marker" data-slug="http://www.smalley.my" data-open="true">
+			It also possible to just override the default options with the following HTML:<br /><code>&lt;div id="gspot-bottom-left" data-zoom="17" data-type="SATELLITE" data-override="true"&gt&lt/div&gt</code>
+		</div>
+
+		<!-- EVEN AJAX ATTRIBUTES CAN BE ACCESSED VIA HTML -->
+		<div id="gspot-bottom-right" data-ajax="json.php" data-type="TERRAIN" data-override="true"></div>
+
 	</div>
 
 </body>
