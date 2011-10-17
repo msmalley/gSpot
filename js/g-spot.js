@@ -37,9 +37,10 @@
     }
 
     Plugin.prototype.init = function () {
+		marker_count = 0;
 		if(this.options.debug===true){
-			console.log('This Element = ',this.element);
-			console.log('Options = ',this.options);
+			debug.log('This Element = ',this.element);
+			debug.log('Options = ',this.options);
 		} map_container = this.element;
 
 		adhoc_zoom = parseInt($(map_container).attr('data-zoom'));
@@ -48,18 +49,23 @@
 		adhoc_lng = parseFloat($(map_container).attr('data-lng'));
 		adhoc_title = $(map_container).attr('data-title');
 		adhoc_slug = $(map_container).attr('data-slug');
+		adhoc_open = $(map_container).attr('data-open');
 		adhoc_content = $(map_container).html();
 
-		if((adhoc_zoom!==null)&&(adhoc_zoom!==false)){
+		ajax = $(map_container).attr('data-ajax');
+
+		if(((adhoc_zoom!==null)&&(adhoc_zoom!==false)&&((!this.options.zoom))||(($(map_container).attr('data-override')=='true')&&(adhoc_zoom)))){
 			this.options.zoom = adhoc_zoom;
-		} if((adhoc_type!==null)&&(adhoc_type!==false)){
+		} if(((adhoc_type!==null)&&(adhoc_type!==false)&&((!this.options.type))||(($(map_container).attr('data-override')=='true')&&(adhoc_type)))){
 			this.options.type = adhoc_type;
 		}
 
 		if((!is_numeric(this.options.lat)) && (this.options.lat!==false)){
-			this.options.lat = default_lat;
+			if(adhoc_lat) this.options.lat = adhoc_lat;
+			else this.options.lat = default_lat;
 		} if((!is_numeric(this.options.lng)) && (this.options.lng!==false)){
-			this.options.lng = default_lng;
+			if(adhoc_lng) this.options.lng = adhoc_lng;
+			else this.options.lng = default_lng;
 		}
 
 		var map_type = false;
@@ -112,9 +118,9 @@
 		}
 
 		if(this.options.debug===true){
-			console.log('HTML5 Status = ', html5_status);
-			console.log('THIS LAT = ', this.options.lat);
-			console.log('THIS LNG = ', this.options.lng);
+			debug.log('HTML5 Status = ', html5_status);
+			debug.log('THIS LAT = ', this.options.lat);
+			debug.log('THIS LNG = ', this.options.lng);
 		}
 
 		adhoc_marker = false;
@@ -122,6 +128,7 @@
 			if((is_numeric(adhoc_lat)) && (is_numeric(adhoc_lng))){
 				adhoc_marker = new Object();
 				adhoc_marker['this_id'] = $(this.element).attr('id');
+				if(!this.options.markers) this.options.markers = [];
 				if((adhoc_lat!==null)&&(adhoc_lat!==false)){
 					adhoc_marker['lat'] = adhoc_lat;
 				} if((adhoc_lng!==null)&&(adhoc_lng!==false)){
@@ -132,30 +139,64 @@
 					adhoc_marker['slug'] = adhoc_slug;
 				} if((adhoc_content!==null)&&(adhoc_content!==false)){
 					adhoc_marker['content'] = adhoc_content;
+				} if((adhoc_open===true)||(adhoc_open==='true')){
+					adhoc_marker['open'] = true;
 				} this.options.markers[this.options.markers.length] = adhoc_marker;
 
 				if(this.options.debug===true){
-					console.log('adhoc_marker = ',adhoc_marker);
+					debug.log('adhoc_marker = ',adhoc_marker);
 				}
 			}
 		}
 
 		if(this.options.debug===true){
-			console.log('Markers = ',this.options.markers);
+			debug.log('Markers = ',this.options.markers);
 		}
 
-		for(i=0; i< this.options.markers.length; i++) {
-			if(this.options.debug===true){
-				console.log('This Marker = ',this.options.markers[i]);
-			} add_marker(
-				$(this.element).attr('id'),
-				this.options.markers[i].lat,
-				this.options.markers[i].lng,
-				this.options.markers[i].title,
-				this.options.markers[i].content,
-				this.options.markers[i].this_id,
-				this.options.markers[i].slug
-			); map_cluster($(map_container).attr('id'));
+		marker[$(map_container).attr('id')] = [];
+		if(ajax){
+			$.ajax({
+			  url: ajax,
+			  dataType: 'json',
+			  success: function(result){
+				these_markers = result;
+				for(i=0; i< these_markers.length; i++) {
+					open_window = false;
+					if(these_markers[i].open===true) open_window = true;
+					add_marker(
+						$(map_container).attr('id'),
+						these_markers[i].lat,
+						these_markers[i].lng,
+						these_markers[i].title,
+						these_markers[i].content,
+						these_markers[i].this_id,
+						these_markers[i].slug,
+						open_window
+					);
+				} if(these_markers.length>0){
+					map_cluster($(map_container).attr('id'));
+				}
+			  }
+			});
+		}else{
+			for(i=0; i< this.options.markers.length; i++) {
+				if(this.options.debug===true){
+					debug.log('This Marker = ',this.options.markers[i]);
+				} open_window = false;
+				if(this.options.markers[i].open===true) open_window = true;
+				add_marker(
+					$(map_container).attr('id'),
+					this.options.markers[i].lat,
+					this.options.markers[i].lng,
+					this.options.markers[i].title,
+					this.options.markers[i].content,
+					this.options.markers[i].this_id,
+					this.options.markers[i].slug,
+					open_window
+				);
+			}
+		} if(this.options.markers.length>0){
+			map_cluster($(map_container).attr('id'));
 		}
 
     };
@@ -284,7 +325,7 @@
 		if (!bounds) return;
 		var position = this_box.latlng_;
 		var iwWidth = jQuery(this_box.div_).width();
-		var iwHeight = jQuery(this_box.div_).height();
+		var iwHeight = jQuery(this_box.div_).height() - 100;
 		var mapDiv = map.getDiv();
 		var mapWidth = mapDiv.offsetWidth;
 		var mapHeight = mapDiv.offsetHeight;
@@ -301,33 +342,32 @@
 	}
 
 	function construct_infobox(this_id,map_id,opts,this_url,title,content){
-		info_box[this_id] = function(map_id,opts){
+		info_box[map_id][this_id] = function(map_id,opts){
 			create_infobox(this,map_id,opts,this_id);
 		}
-		info_box[this_id].prototype = new google.maps.OverlayView();
-		info_box[this_id].prototype.remove = function() {
+		info_box[map_id][this_id].prototype = new google.maps.OverlayView();
+		info_box[map_id][this_id].prototype.remove = function() {
 			remove_infobox(this);
 		};
-		info_box[this_id].prototype.draw = function() {
+		info_box[map_id][this_id].prototype.draw = function() {
 			draw_infobox(this);
 		};
-		info_box[this_id].prototype.createElement = function() {
+		info_box[map_id][this_id].prototype.createElement = function() {
 			fill_infobox(this, this_url, title, content, this_id);
 		}
-		info_box[this_id].prototype.panMap = function() {
+		info_box[map_id][this_id].prototype.panMap = function() {
 			pan_infobox(this);
 		};
-		new_info_box[this_id] = new info_box[this_id](
+		new_info_box[map_id] = [];
+		new_info_box[map_id][this_id] = new info_box[map_id][this_id](
 			map_id,
-			{latlng: marker[this_id].getPosition(), map: marker[this_id].map}
+			{latlng: marker[map_id][this_id].getPosition(), map: marker[map_id][this_id].map}
 		);
 	}
 
 	/* MARKER FUNCTIONS */
 
-	function add_marker(map_id,lat,lng,title,content,this_id,slug){
-		var open_mongobox = false;
-		if((lat==current_marker['lat'])&&(lng==current_marker['lng'])){ open_mongobox = true; }
+	function add_marker(map_id,lat,lng,title,content,this_id,slug,open){
 		var lat_lng = new google.maps.LatLng(lat,lng);
 		var this_url = base_url+slug;
 		var image = new google.maps.MarkerImage(
@@ -342,32 +382,33 @@
 			new google.maps.Point(0,0),
 			new google.maps.Point(31,30)
 		);
-		marker[this_id] = new google.maps.Marker({
+		marker[map_id][this_id] = new google.maps.Marker({
 			position: lat_lng,
 			icon: image,
 			shadow: shadow,
 			map: map,
 			title: title
 		});
-		clustered_markers[map_id][marker_count] = marker[this_id];
-		if(open_mongobox){
-			if(info_box[this_id]==null){
+		info_box[map_id] = [];
+		clustered_markers[map_id][marker_count] = marker[map_id][this_id];
+		if(open===true){
+			if(info_box[map_id][this_id]==null){
 				construct_infobox(
 					this_id,
 					map_id,
-					{latlng: marker[this_id].getPosition(), map: marker[this_id].map},
+					{latlng: marker[map_id][this_id].getPosition(), map: marker[map_id][this_id].map},
 					this_url,
 					title,
 					content
 				);
 			}
 		}
-		google.maps.event.addListener(marker[this_id], "click", function(e) {
-			if(info_box[this_id]==null){
+		google.maps.event.addListener(marker[map_id][this_id], "click", function(e) {
+			if(info_box[map_id][this_id]==null){
 				construct_infobox(
 					this_id,
 					map_id,
-					{latlng: marker[this_id].getPosition(), map: marker[this_id].map},
+					{latlng: marker[map_id][this_id].getPosition(), map: marker[map_id][this_id].map},
 					this_url,
 					title,
 					content
@@ -1022,9 +1063,72 @@
 	ClusterIcon.prototype['draw'] = ClusterIcon.prototype.draw;
 	ClusterIcon.prototype['onRemove'] = ClusterIcon.prototype.onRemove;
 
-	/* ------------------------ */
-	/* END OF CLUSTER FUNCTIONS */
-	/* ------------------------ */
+	/* -------------------------- */
+	/* INLINE DEBUG FUNCTIONALITY */
+	/* -------------------------- */
+
+	window.debug = (function(){
+	  var window = this,
+		aps = Array.prototype.slice,
+		con = window.console,
+		that = {},
+		callback_func,
+		callback_force,
+		log_level = 9,
+		log_methods = [ 'error', 'warn', 'info', 'debug', 'log' ],
+		pass_methods = 'assert clear count dir dirxml exception group groupCollapsed groupEnd profile profileEnd table time timeEnd trace'.split(' '),
+		idx = pass_methods.length,
+		logs = [];
+	  while ( --idx >= 0 ) {
+		(function( method ){
+		  that[ method ] = function() {
+			log_level !== 0 && con && con[ method ]
+			  && con[ method ].apply( con, arguments );
+		  }
+		})( pass_methods[idx] );
+	  }
+
+	  idx = log_methods.length;
+	  while ( --idx >= 0 ) {
+		(function( idx, level ){
+		  that[ level ] = function() {
+			var args = aps.call( arguments ),
+			  log_arr = [ level ].concat( args );
+			logs.push( log_arr );
+			exec_callback( log_arr );
+			if ( !con || !is_level( idx ) ) { return; }
+			con.firebug ? con[ level ].apply( window, args )
+			  : con[ level ] ? con[ level ]( args )
+			  : con.log( args );
+		  };
+		})( idx, log_methods[idx] );
+	  }
+	  function exec_callback( args ) {
+		if ( callback_func && (callback_force || !con || !con.log) ) {
+		  callback_func.apply( window, args );
+		}
+	  };
+	  that.setLevel = function( level ) {
+		log_level = typeof level === 'number' ? level : 9;
+	  };
+	  function is_level( level ) {
+		return log_level > 0
+		  ? log_level > level
+		  : log_methods.length + log_level <= level;
+	  };
+	  that.setCallback = function() {
+		var args = aps.call( arguments ),
+		  max = logs.length,
+		  i = max;
+		callback_func = args.shift() || null;
+		callback_force = typeof args[0] === 'boolean' ? args.shift() : false;
+		i -= typeof args[0] === 'number' ? args.shift() : max;
+		while ( i < max ) {
+		  exec_callback( logs[i++] );
+		}
+	  };
+	  return that;
+	})();
 
     /* PREVENT MULTIPLE INSTANTIATIONS */
     $.fn[pluginName] = function ( options ) {
