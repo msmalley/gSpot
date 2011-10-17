@@ -60,10 +60,10 @@
 			this.options.type = adhoc_type;
 		}
 
-		if((!is_numeric(this.options.lat)) && (this.options.lat!==false)){
+		if((!is_numeric(this.options.lat)) && (this.options.lat!==null)){
 			if(adhoc_lat) this.options.lat = adhoc_lat;
 			else this.options.lat = default_lat;
-		} if((!is_numeric(this.options.lng)) && (this.options.lng!==false)){
+		} if((!is_numeric(this.options.lng)) && (this.options.lng!==null)){
 			if(adhoc_lng) this.options.lng = adhoc_lng;
 			else this.options.lng = default_lng;
 		}
