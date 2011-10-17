@@ -1,4 +1,4 @@
-/* gSpot Version 1.0 - by Mark Smalley - http://www.smalley.my */
+/* gSpot Version 1.0.1 - by Mark Smalley - http://www.smalley.my */
 /* Mark Smalley on GitHub - https://github.com/msmalley */
 ;(function ( $, window, document, undefined ) {
 
@@ -7,7 +7,8 @@
             zoom: 13,
 			type: 'ROADMAP',
 			lat: false,
-			lng: false
+			lng: false,
+			imgs: 'img/'
         };
 
 	/* GSPOT GLOBALS */
@@ -22,7 +23,7 @@
 	var current_marker = [];
 	var default_lat = 3.152864;
 	var default_lng = 101.712624;
-	var base_url = '';
+	var image_base = 'img';
 	var map_container;
 
     /* ----------------------- */
@@ -52,6 +53,7 @@
 		adhoc_title = $(map_container).attr('data-title');
 		adhoc_slug = $(map_container).attr('data-slug');
 		adhoc_open = $(map_container).attr('data-open');
+		adhoc_icon = $(map_container).attr('data-icon');
 		adhoc_content = $(map_container).html();
 
 		ajax = $(map_container).attr('data-ajax');
@@ -79,6 +81,10 @@
 			map_type = google.maps.MapTypeId.TERRAIN;
 		}else{
 			map_type = google.maps.MapTypeId.ROADMAP;
+		}
+
+		if((this.options.imgs!==null)||(this.options.imgs!==false)){
+			image_base = this.options.imgs;
 		}
 
 		clustered_markers[$(this.element).attr('id')] = [];
@@ -143,6 +149,8 @@
 					adhoc_marker['content'] = adhoc_content;
 				} if((adhoc_open===true)||(adhoc_open==='true')){
 					adhoc_marker['open'] = true;
+				} if((adhoc_icon!==null)||(adhoc_icon!==false)){
+					adhoc_marker['icon'] = adhoc_icon;
 				} this.options.markers[this.options.markers.length] = adhoc_marker;
 
 				if(this.options.debug===true){
@@ -173,7 +181,8 @@
 						these_markers[i].content,
 						these_markers[i].this_id,
 						these_markers[i].slug,
-						open_window
+						open_window,
+						these_markers[i].icon
 					);
 				} if(these_markers.length>0){
 					map_cluster($(map_container).attr('id'));
@@ -194,7 +203,8 @@
 					this.options.markers[i].content,
 					this.options.markers[i].this_id,
 					this.options.markers[i].slug,
-					open_window
+					open_window,
+					this.options.markers[i].icon
 				);
 			}
 		} if(this.options.markers.length>0){
@@ -281,7 +291,7 @@
 			/* CLOSE ICON */
 			var title_bar = document.createElement('div');
 			var close_img = document.createElement('img');
-			jQuery(close_img).addClass('close-icon').attr('src',base_url+'img/close.png');
+			jQuery(close_img).addClass('close-icon').attr('src',image_base+'/close.png');
 			/* TITLE BAR */
 			var title_content = '<div class="infobox-title"><a href="'+this_url+'">'+title+'</a></div>';
 			jQuery(title_bar).addClass('info-window-title').html(title_content);
@@ -369,17 +379,20 @@
 
 	/* MARKER FUNCTIONS */
 
-	function add_marker(map_id,lat,lng,title,content,this_id,slug,open){
+	function add_marker(map_id,lat,lng,title,content,this_id,slug,open,icon){
 		var lat_lng = new google.maps.LatLng(lat,lng);
-		var this_url = base_url+slug;
+		var this_url = slug;
+		var default_marker = 'default_marker.png';
+		var default_shadow = 'shadow.png';
+		if(icon) default_marker = icon;
 		var image = new google.maps.MarkerImage(
-			base_url+'img/default_marker.png',
+			image_base+'/'+default_marker,
 			new google.maps.Size(26,26),
 			new google.maps.Point(0,0),
 			new google.maps.Point(13,13)
 		);
 		var shadow = new google.maps.MarkerImage(
-			base_url+'img/shadow.png',
+			image_base+'/'+default_shadow,
 			new google.maps.Size(62,62),
 			new google.maps.Point(0,0),
 			new google.maps.Point(31,30)
@@ -424,21 +437,21 @@
 
 	function map_cluster(map_id){
 		var styles = [[{
-		  url: base_url+'img/shadow.png',
+		  url: image_base+'/shadow.png',
 		  height: 62,
 		  width: 62,
 		  opt_anchor: [16, 0],
 		  opt_textColor: '#333333',
 		  opt_textSize: 18
 		}, {
-		  url: base_url+'img/shadow.png',
+		  url: image_base+'/shadow.png',
 		  height: 62,
 		  width: 62,
 		  opt_anchor: [16, 0],
 		  opt_textColor: '#333333',
 		  opt_textSize: 18
 		}, {
-		  url: base_url+'img/shadow.png',
+		  url: image_base+'/shadow.png',
 		  height: 62,
 		  width: 62,
 		  opt_anchor: [16, 0],
