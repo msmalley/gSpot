@@ -10,7 +10,7 @@
 	<script src="js/jquery-1.6.4.min.js"></script>
 
 	<link rel="stylesheet" href="css/g-spot.css">
-	<script src="js/g-spot.js"></script>
+	<script src="js/g-spot.min.js"></script>
 
 	<!--[if lt IE 9]>
 		<style>.git-ribbon { top: -2em; left: -2em; }</style>
@@ -26,6 +26,7 @@
 			content: 'Getting started is as simple as (JS):<br /><code>$(\'#gspot\').gSpot();</code><br />And (HTML):<br /><code>&lt;div id="gspot"&gt&lt/div&gt</code>',
 			this_id: 'id',
 			slug: 'https://github.com/msmalley/gSpot',
+			icon: 'house.png',
 			open: true
 		},{
 			lat: 3.2,
@@ -42,6 +43,7 @@
 			type: 'ROADMAP',
 			lat: 3.152864,
 			lng: 101.712624,
+			imgs: 'img',
 			debug: false,
 			markers: markers
         }
@@ -49,10 +51,7 @@
 		/* ALTERNATIVE OPTIONS */
 		basic_options = {
 			zoom: 2,
-			type: 'HYBRID',
-			lat: 3.152864,
-			lng: 101.712624,
-			debug: false
+			type: 'HYBRID'
 		}
 
 		/* CREATING A MAP IS THIS SIMPLE */
@@ -86,8 +85,8 @@
 		<div id="gspot-top-left"></div>
 
 		<!-- HOWEVER - DATA ATTRIBUTES ALLOW YOU TO ADD AN AD-HOC MARKER -->
-		<div id="gspot-top-right" data-lat="3" data-lng="100" data-title="AD-HOC Marker" data-slug="http://www.smalley.my" data-open="true">
-			This is the content for an ad-hoc marker.<br /><code>&lt;div id="gspot-top-right" data-lat="3" data-lng="100" data-title="AD-HOC Marker" data-slug="http://www.smalley.my"&gt&lt/div&gt</code>
+		<div id="gspot-top-right" data-lat="3" data-lng="100" data-title="AD-HOC Marker" data-slug="http://www.smalley.my" data-open="true" data-icon="house.png">
+			This is the content for an ad-hoc marker, where the icon has also been changed by using the "icon" option.<br /><code>&lt;div id="gspot-top-right" data-lat="3" data-lng="100" data-title="AD-HOC Marker" data-slug="http://www.smalley.my" data-icon="house.png"&gt&lt/div&gt</code>
 		</div>
 
 		<!-- WITH DATA ATTRIBUTES, YOU CAN ALSO OVER-RIDE DEFAULT OPTIONS IF SPECIFIED -->
