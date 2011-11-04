@@ -8,7 +8,8 @@
 			type: 'ROADMAP',
 			lat: false,
 			lng: false,
-			imgs: 'img/'
+			imgs: 'img',
+			markers: false
         };
 
 	/* GSPOT GLOBALS */
@@ -25,6 +26,8 @@
 	var default_lng = 101.712624;
 	var image_base = 'img';
 	var map_container;
+	var current_lat = false;
+	var current_lng = false;
 
     /* ----------------------- */
 	/* jQuery Construct Method */
@@ -107,6 +110,7 @@
 			if(navigator.geolocation) {
 				navigator.geolocation.getCurrentPosition(function(position) {
 					html5_status = 'Browser supports and uses HTML5 Geo-Location';
+					current_lat = position.coords.latitude; current_lng = position.coords.longitude;
 					map_position = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
 					map.setCenter(map_position);
 				}, function() {
@@ -121,6 +125,7 @@
 			html5_status = 'Specific Lat / Lng Used';
 			current_marker['lat']=this.options.lat;
 			current_marker['lng']=this.options.lng;
+			current_lat = this.options.lat; current_lng = this.options.lng;
 			map_position = new google.maps.LatLng(this.options.lat,this.options.lng);
 			map.setCenter(map_position);
 		}
@@ -167,6 +172,8 @@
 		if(ajax){
 			$.ajax({
 			  url: ajax,
+			  data: {lat:current_lat,lng:current_lng},
+			  type: 'POST',
 			  dataType: 'json',
 			  success: function(result){
 				these_markers = result;
@@ -228,6 +235,7 @@
 	}
 
 	function handle_no_geolocation(errorFlag) {
+		current_lat = default_lat; current_lng = default_lng;
 		map_position = new google.maps.LatLng(default_lat, default_lng);
 		map.setCenter(map_position);
 	}
@@ -299,6 +307,7 @@
 			/* ESTABLISH ACTIONS */
 			function removeInfoBox(ib) {
 				return function() {
+					//this_box = remove_infobox(this_box);
 					ib.setMap(null);
 				};
 			}
@@ -353,7 +362,7 @@
 		this.boundsChangedListener_ = null;
 	}
 
-	function construct_infobox(this_id,map_id,opts,this_url,title,content){
+	function construct_infobox(this_id,map_id,opts,this_url,title,content,open_only){
 		info_box[map_id][this_id] = function(map_id,opts){
 			create_infobox(this,map_id,opts,this_id);
 		}
@@ -370,11 +379,20 @@
 		info_box[map_id][this_id].prototype.panMap = function() {
 			pan_infobox(this);
 		};
-		new_info_box[map_id] = [];
-		new_info_box[map_id][this_id] = new info_box[map_id][this_id](
-			map_id,
-			{latlng: marker[map_id][this_id].getPosition(), map: marker[map_id][this_id].map}
-		);
+		if(open_only){
+			new_info_box[map_id] = [];
+			new_info_box[map_id][this_id] = null;
+			new_info_box[map_id][this_id] = new info_box[map_id][this_id](
+				map_id,
+				{latlng: marker[map_id][this_id].getPosition(), map: marker[map_id][this_id].map}
+			);
+		}else{
+			new_info_box[map_id] = [];
+			new_info_box[map_id][this_id] = new info_box[map_id][this_id](
+				map_id,
+				{latlng: marker[map_id][this_id].getPosition(), map: marker[map_id][this_id].map}
+			);
+		}
 	}
 
 	/* MARKER FUNCTIONS */
@@ -419,15 +437,44 @@
 			}
 		}
 		google.maps.event.addListener(marker[map_id][this_id], "click", function(e) {
-			if(info_box[map_id][this_id]==null){
-				construct_infobox(
-					this_id,
-					map_id,
-					{latlng: marker[map_id][this_id].getPosition(), map: marker[map_id][this_id].map},
-					this_url,
-					title,
-					content
-				);
+			if(!info_box[map_id][this_id]){
+				if(new_info_box[map_id][this_id]){
+					if(new_info_box[map_id][this_id]['div_']===null){
+						construct_infobox(
+							this_id,
+							map_id,
+							{latlng: marker[map_id][this_id].getPosition(), map: marker[map_id][this_id].map},
+							this_url,
+							title,
+							content,
+							false
+						);
+					}
+				}else{
+					construct_infobox(
+						this_id,
+						map_id,
+						{latlng: marker[map_id][this_id].getPosition(), map: marker[map_id][this_id].map},
+						this_url,
+						title,
+						content,
+						false
+					);
+				}
+			}else{
+				if(new_info_box[map_id][this_id]){
+					if(new_info_box[map_id][this_id]['div_']===null){
+						construct_infobox(
+							this_id,
+							map_id,
+							{latlng: marker[map_id][this_id].getPosition(), map: marker[map_id][this_id].map},
+							this_url,
+							title,
+							content,
+							true
+						);
+					}
+				}
 			}
 		});
 		marker_count++;
