@@ -9,7 +9,8 @@
 * Options for Icons per Marker
 
 # Getting Started:
-More information available soon!
+* More information available soon!
+* [Demo](http://gspot.smalley.my/) helps to explain basic options...
 
 # See it in Action:
 * Demo at [http://gspot.smalley.my/](http://gspot.smalley.my/)
