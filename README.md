@@ -5,10 +5,12 @@
 # The Basic Features:
 * Easy Map Initialization
 * Clustered Map Markers
-* Customized Info Windows
+* Customized CSS3 InfoWindows
+* Options for Icons per Marker
 
 # Getting Started:
 More information available soon!
 
 # See it in Action:
 Demo at [http://gspot.smalley.my/](http://gspot.smalley.my/)
+[Geoply](https://github.com/msmalley/Geoply) uses gSpot to display 500 of the nearest 7.9+ Million markers
