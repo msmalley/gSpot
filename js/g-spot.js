@@ -1,4 +1,4 @@
-/* gSpot Version 1.0.1 - by Mark Smalley - http://www.smalley.my */
+/* gSpot Version 1.0.2 - by Mark Smalley - http://www.smalley.my */
 /* Mark Smalley on GitHub - https://github.com/msmalley */
 ;(function ( $, window, document, undefined ) {
 
@@ -9,7 +9,8 @@
 			lat: false,
 			lng: false,
 			imgs: 'img',
-			markers: false
+			markers: false,
+			check_markers: true
         };
 
 	/* GSPOT GLOBALS */
@@ -28,6 +29,7 @@
 	var map_container;
 	var current_lat = false;
 	var current_lng = false;
+	var check_markers = true;
 
     /* ----------------------- */
 	/* jQuery Construct Method */
@@ -59,6 +61,7 @@
 		adhoc_icon = $(map_container).attr('data-icon');
 		adhoc_content = $(map_container).html();
 
+		check_markers = this.options.check_markers;
 		ajax = $(map_container).attr('data-ajax');
 
 		if(((adhoc_zoom!==null)&&(adhoc_zoom!==false)&&((!this.options.zoom))||(($(map_container).attr('data-override')=='true')&&(adhoc_zoom)))){
@@ -240,6 +243,16 @@
 		map.setCenter(map_position);
 	}
 
+	function url_exists(url){
+		var http = new XMLHttpRequest();
+		http.open('HEAD', url, false);
+		http.send();
+		this_status = false;
+		if(http.status!=404&&http.status!=403) this_status = true;
+		else this_status = false;
+		return this_status;
+	}
+
 	/* INFOWINDOW FUNCTIONS */
 
 	function create_infobox(this_box,map_id,opts,this_id){
@@ -263,7 +276,7 @@
 		if(this_box.div_){
 			this_box.div_.parentNode.removeChild(this_box.div_);
 			this_box.div_ = null;
-			info_box[this_box.mongo_id] = null;
+			//info_box[this_box.mongo_id] = null;
 		}
 	}
 
@@ -402,9 +415,14 @@
 		var this_url = slug;
 		var default_marker = 'default_marker.png';
 		var default_shadow = 'shadow.png';
-		if(icon) default_marker = icon;
+		if(icon) this_marker = icon;
+		else this_marker = default_marker;
+		this_marker = image_base+'/'+this_marker;
+		if(check_markers===true){
+			if(url_exists(this_marker)!==true) this_marker = image_base+'/'+default_marker;
+		}
 		var image = new google.maps.MarkerImage(
-			image_base+'/'+default_marker,
+			this_marker,
 			new google.maps.Size(26,26),
 			new google.maps.Point(0,0),
 			new google.maps.Point(13,13)
@@ -474,6 +492,16 @@
 							true
 						);
 					}
+				}else{
+					construct_infobox(
+						this_id,
+						map_id,
+						{latlng: marker[map_id][this_id].getPosition(), map: marker[map_id][this_id].map},
+						this_url,
+						title,
+						content,
+						true
+					);
 				}
 			}
 		});
